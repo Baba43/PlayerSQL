@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
 
+import com.sun.jna.platform.win32.NTSecApi;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -53,10 +56,26 @@ public class PlayerEvents implements Listener {
 
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event) {
-		this.tasks.offer(event.getPlayer().getUniqueId());
+        final Player player = event.getPlayer();
+        if(PlayerSQL.LOAD_DELAY > 0) {
+            clearInventoy(player);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(PlayerSQL.getInstance(), new Runnable() {
+                @Override
+                public void run() {
+                    tasks.offer(player.getUniqueId());
+                }
+            }, 20 * 3);
+        } else {
+            tasks.offer(player.getUniqueId());
+        }
 	}
 
-	@EventHandler
+    private void clearInventoy(Player player) {
+        player.getInventory().clear();
+        player.getEnderChest().clear();
+    }
+
+    @EventHandler
 	public void onQuit(PlayerQuitEvent event) {
 		if (!this.lockeds.contains(event.getPlayer().getUniqueId())) {
 			this.manager.runSaveTask(event.getPlayer());

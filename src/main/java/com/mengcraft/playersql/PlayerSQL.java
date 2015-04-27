@@ -13,8 +13,12 @@ import com.mengcraft.playersql.task.TimerSaveTask;
 
 public class PlayerSQL extends JavaPlugin {
 
-	@Override
+    public static long LOAD_DELAY = 20 * 3;
+    private static PlayerSQL instance;
+
+    @Override
 	public void onEnable() {
+        instance = this;
 		saveDefaultConfig();
 		saveConfig();
 		ConnectionFactory factory = new ConnectionFactory(
@@ -46,7 +50,13 @@ public class PlayerSQL extends JavaPlugin {
 			setEnabled(false);
 			getServer().shutdown();
 		}
-	}
+        
+        if(!getConfig().isLong("LoadDelayTicks")) {
+            getConfig().set("LoadDelayTicks", 20 * 3);
+            saveConfig();
+        }
+        LOAD_DELAY = getConfig().getLong("LoadDelayTicks");
+    }
 
 	@Override
 	public void onDisable() {
@@ -58,4 +68,7 @@ public class PlayerSQL extends JavaPlugin {
 		}
 	}
 
+    public static PlayerSQL getInstance() {
+        return instance;
+    }
 }
