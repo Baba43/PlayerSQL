@@ -64,7 +64,7 @@ public class PlayerEvents implements Listener {
                 public void run() {
                     tasks.offer(player.getUniqueId());
                 }
-            }, 20 * 3);
+            }, PlayerSQL.LOAD_DELAY);
         } else {
             tasks.offer(player.getUniqueId());
         }
