@@ -1,10 +1,6 @@
 package com.mengcraft.playersql;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,6 +22,11 @@ public class TaskManager {
 	
 	private final ExecutorService pool = Executors.newCachedThreadPool();
 	private final ItemUtil util = ItemUtil.getUtil();
+	private final List<UUID> lockeds;
+
+	public TaskManager() {
+		this.lockeds = LockedPlayer.getDefault().getHandle();
+	}
 
 	public void runLoadTask(UUID uuid) {
 		this.pool.execute(new LoadPlayerTask(uuid));
@@ -38,6 +39,9 @@ public class TaskManager {
 	public void runSaveAll(Plugin plugin, int quit) {
 		Map<UUID, String> map = new HashMap<>();
 		for (Player player : plugin.getServer().getOnlinePlayers()) {
+			if(lockeds.contains(player.getUniqueId())) {
+				continue;
+			}
 			map.put(player.getUniqueId(), getData(player));
 		}
 		if (map.size() > 0) {
