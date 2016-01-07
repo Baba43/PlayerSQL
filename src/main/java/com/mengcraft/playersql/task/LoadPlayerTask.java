@@ -10,11 +10,8 @@ import java.util.UUID;
 
 import com.google.gson.JsonParser;
 import com.mengcraft.jdbc.ConnectionHandler;
-import com.mengcraft.playersql.LoadTaskQueue;
-import com.mengcraft.playersql.LoadedData;
-import com.mengcraft.playersql.LoadedQueue;
-import com.mengcraft.playersql.LockedPlayer;
-import com.mengcraft.playersql.RetryHandler;
+import com.mengcraft.playersql.*;
+import org.bukkit.Bukkit;
 
 public class LoadPlayerTask implements Runnable {
 
@@ -47,7 +44,13 @@ public class LoadPlayerTask implements Runnable {
 				lock.setString(1, this.uuid.toString());
 				lock.executeUpdate();
 				lock.close();
-				offer(result.getString(1));
+				String data = result.getString(1);
+				if(data != null) {
+					offer(data);
+				} else {
+					PlayerSQL.getInstance().getLogger().info("Data was null for `" + this.uuid + "`");
+					this.locks.remove(this.uuid);
+				}
 			} else if (this.retry.check(this.uuid)) {
 				// Data locked but reach max retry number.
 				offer(result.getString(1));
