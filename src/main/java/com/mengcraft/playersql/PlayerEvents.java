@@ -73,6 +73,10 @@ public class PlayerEvents implements Listener {
     private void clearInventoy(Player player) {
         player.getInventory().clear();
         player.getEnderChest().clear();
+		player.getInventory().setHelmet(null);
+		player.getInventory().setChestplate(null);
+		player.getInventory().setLeggings(null);
+		player.getInventory().setBoots(null);
     }
 
     @EventHandler
